@@ -42,7 +42,7 @@ public class Main extends Application {
 	
 	 private static  List<Tweets> arbre;
 	 
-	TableView<Tweets> table = new TableView<Tweets>();
+	 TableView<Tweets> table = new TableView<Tweets>();
 	 ProgressBar progressBar = new ProgressBar();
 	 String path;
 	 Tweets t = new Tweets();
@@ -129,11 +129,11 @@ public class Main extends Application {
                             
                              try {
                             	 
-								 path= file.getCanonicalPath();
-								 //passer en parametre les eleent necessaire pour cree un indexeur et un analyseur
+								 path= file.getAbsolutePath();
+								 //passer en parametre les elenment necessaire pour cree un indexeur et un analyseur
 				                 Indexer kk =new Indexer(arbre = new ArrayList<Tweets>(),path,dir = new RAMDirectory(),analyzer = new StandardAnalyzer(),
 				                		 config = new IndexWriterConfig(analyzer),new IndexWriter(dir, config));
-								 kk.importer();
+								 kk.imporeter();
 								 ObservableList<Tweets> list = FXCollections.observableArrayList(arbre);						
 								 table.setItems(list);						
 								 
