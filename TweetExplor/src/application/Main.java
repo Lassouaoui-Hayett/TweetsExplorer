@@ -13,6 +13,7 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
 
 import javafx.application.Application;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Scene;
@@ -20,6 +21,7 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCombination;
@@ -31,9 +33,9 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
-//import javafx.beans.value.ObservableValue;
 
-//import javafx.beans.value.ChangeListener;
+//import javafx.beans.value.ObservableValue;
+import javafx.beans.value.ChangeListener;
 
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -46,13 +48,15 @@ public class Main extends Application {
 	 ProgressBar progressBar = new ProgressBar();
 	 String path;
 	 Tweets t = new Tweets();
+	 ObservableList<Tweets> list;
 	 
-	 //Creation d'un Indexeur pour le passer en parametre du constructeur
+	//Index and search elements 
      Directory dir = new RAMDirectory();
      StandardAnalyzer analyzer;
      IndexWriterConfig config ;
      IndexWriter writer;
  	 List<Tweets> ll;
+ 	 
 	
     public void start(Stage stage) {
 		
@@ -65,7 +69,7 @@ public class Main extends Application {
         MenuBar menuBar = new MenuBar();
         
         Menu fileMenu = new Menu("File");
-        Menu trieMenu = new Menu("Trie");
+        Menu trieMenu = new Menu("Sort");
    
         TextField textField = new TextField ();
         textField.setMinWidth(180);
@@ -81,27 +85,34 @@ public class Main extends Application {
         
         MenuItem openFileItem = new MenuItem("Open File");
         MenuItem exitItem = new MenuItem("Exit");
-        MenuItem trie_d = new MenuItem("Trie par date");
-       // MenuItem trie_t = new MenuItem("Trie par tweet");
+        MenuItem trie_d = new MenuItem("Sort by days");
+      
+        
+//========================= Table View  Creation ============================	 
         
         
-        //creation des columns de la TABLEView
         TableColumn<Tweets, String> id_tweet //
-                = new TableColumn<Tweets, String>("Id Tweet");
+                = new TableColumn<Tweets, String>("Id");
    
         TableColumn<Tweets, String> user//
                 = new TableColumn<Tweets, String>("User");
         
         TableColumn<Tweets, String> tweet_date//
-               = new TableColumn<Tweets, String>("Date Tweet");
+               = new TableColumn<Tweets, String>("Date ");
         
         TableColumn<Tweets, String> content//
                 = new TableColumn<Tweets, String>("Tweet");
         
         TableColumn<Tweets, String> retweet//
-                = new TableColumn<Tweets, String>("Retweet");
+                = new TableColumn<Tweets, String>("RTID");
         
-        //rechercher les attribue depuis la class Tweet
+        id_tweet.prefWidthProperty().bind(table.widthProperty().multiply(0.1));
+        user.prefWidthProperty().bind(table.widthProperty().multiply(0.1));
+        tweet_date.prefWidthProperty().bind(table.widthProperty().multiply(0.2));
+        content.prefWidthProperty().bind(table.widthProperty().multiply(0.5));
+        retweet.prefWidthProperty().bind(table.widthProperty().multiply(0.1));
+        
+        //rechercher les attribue depuis la class Tweets
         id_tweet.setCellValueFactory(new PropertyValueFactory<>("id_tweet"));
         user.setCellValueFactory(new PropertyValueFactory<>("user"));
         tweet_date.setCellValueFactory(new PropertyValueFactory<>("date"));
@@ -134,8 +145,9 @@ public class Main extends Application {
 				                 Indexer kk =new Indexer(arbre = new ArrayList<Tweets>(),path,dir = new RAMDirectory(),analyzer = new StandardAnalyzer(),
 				                		 config = new IndexWriterConfig(analyzer),new IndexWriter(dir, config));
 								 kk.imporeter();
-								 ObservableList<Tweets> list = FXCollections.observableArrayList(arbre);						
-								 table.setItems(list);						
+								 list = FXCollections.observableArrayList(arbre);						
+								 table.setItems(list);		
+                                
 								 
 							} catch (IOException e1) {
 								
@@ -185,7 +197,7 @@ public class Main extends Application {
             		        
             	                                }
             	  
-            	Indexer it =new Indexer(textField.getText(),arbre,dir, analyzer,  config,  writer);
+            	Searcher it =new Searcher(textField.getText(),arbre,dir, analyzer,  config,  writer);
             
                  ll=it.recherche();
             	 //System.out.println("l'arbre est :\n"+ll);
@@ -194,7 +206,6 @@ public class Main extends Application {
 				 trie_d.setDisable(false);
 
               }
-              
             
             }
         });
@@ -230,6 +241,9 @@ public class Main extends Application {
         stage.setScene(scene);
         stage.show();
     }
+    
+    
+//======================== Add Filter Function  ===================    
 	
 	 private void configuringFileChooser(FileChooser fileChooser) {
 	      // Set title for FileChooser
@@ -241,7 +255,9 @@ public class Main extends Application {
 	              new FileChooser.ExtensionFilter("fichier csv", "*.csv") 
 	                                                            );
 	  }
-
+	 
+//======================== Main Function  ===================    
+	 
     public static void main(String[] args) {
         Application.launch(args);
     }
